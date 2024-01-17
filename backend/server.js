@@ -1,12 +1,21 @@
 import express from 'express';
 import dotenv from 'dotenv';
+import cookieParser from 'cookie-parser';
 dotenv.config();
 import productRoutes from './routes/productRoutes.js';
+import userRoutes from './routes/userRoutes.js';
 import connectDB from './config/db.js';
 import { errorHandler, notFound } from './middleware/errorMiddleware.js';
 
 connectDB();
 const app = express();
+
+//body parser middleware for req.body
+app.use(express.json());
+app.use(express.urlencoded({ extended: true })); //postman'da urlencoded kullanıyoruz.
+
+//Cookie parser middleware
+app.use(cookieParser()); //req.cookie'ye erişmemize olanak tanır.
 
 const PORT = process.env.PORT || 5000;
 
@@ -15,6 +24,7 @@ app.get('/', (req, res) => {
 });
 
 app.use('/api/products', productRoutes);
+app.use('/api/users', userRoutes);
 
 app.use(notFound);
 
