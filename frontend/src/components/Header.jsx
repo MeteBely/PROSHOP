@@ -3,9 +3,13 @@ import { FaUser } from 'react-icons/fa';
 import { TbSquareRoundedLetterP } from 'react-icons/tb';
 import { Link } from 'react-router-dom';
 import { useSelector } from 'react-redux';
+import { useState } from 'react';
 
 const Header = () => {
   const { cartItems } = useSelector((state) => state.cart);
+  const { userInfo } = useSelector((state) => state.auth);
+  const [openMenu, setOpenMenu] = useState(false);
+  const logoutHandler = () => {};
   return (
     <header className="">
       <nav className="">
@@ -26,6 +30,23 @@ const Header = () => {
               <FaUser />
               Sign In
             </Link>
+            {userInfo ? (
+              <>
+                <div className="relative">
+                  <button onClick={() => setOpenMenu(!openMenu)} className="w-20 h-8 rounded-full">
+                    {userInfo.name}
+                  </button>
+                  {openMenu && (
+                    <div className="absolute right-0 mt-3 w-[200px] bg-white shadow-lg shadow-gray-300 flex flex-col items-start">
+                      <Link to="/profile">Profile</Link>
+                      <button onClick={() => logoutHandler()}>Logout</button>
+                    </div>
+                  )}
+                </div>
+              </>
+            ) : (
+              ''
+            )}
           </div>
         </div>
       </nav>

@@ -3,10 +3,8 @@ const Footer = () => {
   return (
     <footer>
       <div className="">
-        <div className="row">
-          <div className="col text-center py-3">
-            <p>Proshop &copy; {year}</p>
-          </div>
+        <div className="text-center py-3">
+          <p>Proshop &copy; {year}</p>
         </div>
       </div>
     </footer>
