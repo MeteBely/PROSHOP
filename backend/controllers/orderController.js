@@ -1,5 +1,7 @@
 import asyncHandler from '../middleware/asyncHandler.js';
 import orderModel from '../models/orderModel.js';
+import stripe from 'stripe';
+const stripeInstance = stripe('sk_test_51Od8nZEh4r18sSvB0IaosaPCBUBe9AxL0HxBtDLnD6kcWsjK1AToenXbCOYV2DfvAlUySR5jCExLhPKLxIBNsQue00rpAwb48O');
 
 // @desc Create new order
 // @route POST /api/orders
@@ -60,15 +62,42 @@ const updateOrderToPaid = asyncHandler(async (req, res) => {
   if (order) {
     order.isPaid = true;
     order.paidAt = Date.now();
-    order.paymentResult = {
-      id: req.body.id,
-      status: req.body.status,
-      update_time: req.body.update_time,
-      email_address: req.body.email_address,
-    };
+    // order.paymentResult = {
+    //   id: req.body.id,
+    //   status: req.body.status,
+    //   update_time: req.body.update_time,
+    //   email_address: req.body.email_address,
+    // };
     const updatedOrder = await order.save();
+    // res.status(200).json(updatedOrder);
+    const products = req.body;
+    try {
+      const lineItems = products.map((product) => {
+        return {
+          price_data: {
+            currency: 'usd',
+            product_data: {
+              name: product.name,
+              images: [`../../frontend/public${product.image}`],
+            },
+            unit_amount: Math.round(product.price * 100),
+          },
+          quantity: product.qty,
+        };
+      });
+      const session = await stripeInstance.checkout.sessions.create({
+        payment_method_types: ['card'],
+        line_items: lineItems,
+        mode: 'payment',
+        success_url: 'http://localhost:5173/success',
+        cancel_url: 'http://localhost:5173/cancel',
+      });
 
-    res.status(200).json(updatedOrder);
+      res.json({ id: session.id });
+    } catch (error) {
+      console.error('Error creating Stripe Checkout session:', error);
+      res.status(500).json({ error: 'Failed to create Stripe Checkout session' });
+    }
   } else {
     res.status(404);
     throw new Error('Order not found');

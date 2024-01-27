@@ -16,7 +16,21 @@ export const ordersApiSlice = apiSlice.injectEndpoints({
       }),
       keepUnusedDataFor: 5,
     }),
+    payOrder: builder.mutation({
+      query: ({ orderId, details }) => ({
+        url: `${ORDERS_URL}/${orderId}/pay`,
+        method: 'PUT',
+        body: details,
+      }),
+    }),
+    // getStripeClientId: builder.query({
+    //   query: () => ({
+    //     url: STRIPE_URL,
+    //   }),
+    //   keepUnusedDataFor: 5,
+    // }),
+    //getpaypalclientıd'li fonksiyon oluşturduk ve paypalurl'e istek atıp id'yi aldık.
   }),
 });
 
-export const { useCreateOrderMutation, useGetOrderDetailsQuery } = ordersApiSlice;
+export const { useCreateOrderMutation, useGetOrderDetailsQuery, usePayOrderMutation } = ordersApiSlice;

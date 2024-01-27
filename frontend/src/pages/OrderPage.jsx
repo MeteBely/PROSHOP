@@ -1,12 +1,38 @@
 import { Link, useParams } from 'react-router-dom';
 import Message from '../components/Message.jsx';
 import Loader from '../components/Loader.jsx';
-import { useGetOrderDetailsQuery } from '../slices/orderApiSlice';
+import { useGetOrderDetailsQuery, usePayOrderMutation } from '../slices/orderApiSlice';
+import { useSelector } from 'react-redux';
+import { useEffect } from 'react';
+import { loadStripe } from '@stripe/stripe-js';
 
 const OrderPage = () => {
   const { id: orderId } = useParams();
   const { data: order, refetch, isLoading, error } = useGetOrderDetailsQuery(orderId);
-  console.log(order);
+
+  const { userInfo } = useSelector((state) => state.auth);
+  const [payOrder, { isLoading: loadingPay }] = usePayOrderMutation();
+  // const { data: stripe, isLoading: loadingStripe, error: errorStripe } = useGetStripeClientIdQuery();
+
+  // useEffect(() => {
+  //   if (!errorStripe && !loadingStripe && stripe.clientId) {
+  //     const loadStripeScript = async(() => {
+  //       //documentse göre
+  //     });
+  //   }
+  // }, [order, stripe]);
+
+  const makePayment = async () => {
+    const stripe = await loadStripe('pk_test_51Od8nZEh4r18sSvBFR8RkZIc8kP3jyEgfCOM7n611vTKnLVNvj3GLwl53DSdPfSBUG2MThLZ3Mw9RVA5msdy03qk00E6vIfmna');
+    const res = await payOrder({ orderId, details: order.orderItems });
+
+    const result = stripe.redirectToCheckout({
+      sessionId: res.data.id,
+    });
+    if (result.error) {
+      console.log(result.error);
+    }
+  };
 
   return isLoading ? (
     <Loader />
@@ -71,7 +97,9 @@ const OrderPage = () => {
             <h2>total</h2>
             <div>${order.totalPrice}</div>
           </div>
-          <div>{/*  */}</div>
+          <div>
+            <button onClick={makePayment}>TEST ÖDEME YAP</button>
+          </div>
         </div>
       </div>
     </>

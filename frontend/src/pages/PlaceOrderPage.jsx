@@ -39,6 +39,8 @@ const PlaceOrderPage = () => {
       toast.error(err);
     }
   };
+
+  console.log(cart);
   return (
     <div className="w-1/2 mx-auto">
       <CheckoutSteps step1 step2 step3 step4 />{' '}
