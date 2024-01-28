@@ -1,8 +1,9 @@
 import asyncHandler from '../middleware/asyncHandler.js';
 import orderModel from '../models/orderModel.js';
+import dotenv from 'dotenv'; //server.js'de tanımlı olmasına rağmen burada da process.env kullanmak için yine import etmek zorunda kaldım. Hatanın nedenini bulamadım.
+dotenv.config();
 import stripe from 'stripe';
-const stripeInstance = stripe('sk_test_51Od8nZEh4r18sSvB0IaosaPCBUBe9AxL0HxBtDLnD6kcWsjK1AToenXbCOYV2DfvAlUySR5jCExLhPKLxIBNsQue00rpAwb48O');
-
+const stripeInstance = stripe(process.env.STRIPE_SECRET_KEY);
 // @desc Create new order
 // @route POST /api/orders
 //  @Private
@@ -19,7 +20,7 @@ const addOrderItems = asyncHandler(async (req, res) => {
         product: x._id,
         _id: undefined,
       })),
-      user: req.user._id,
+      user: req.user._id, //Buradaki id'yi protect middleware'sinden alıyoruz. Böylece order'ların hangi user'a ait olduğunu kolayca tutmuş oluyoruz.
       shippingAddress,
       paymentMethod,
       itemsPrice,
@@ -69,7 +70,7 @@ const updateOrderToPaid = asyncHandler(async (req, res) => {
     //   email_address: req.body.email_address,
     // };
     const updatedOrder = await order.save();
-    // res.status(200).json(updatedOrder);
+
     const products = req.body;
     try {
       const lineItems = products.map((product) => {

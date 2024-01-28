@@ -1,7 +1,7 @@
 import { Link, useParams } from 'react-router-dom';
 import Message from '../components/Message.jsx';
 import Loader from '../components/Loader.jsx';
-import { useGetOrderDetailsQuery, usePayOrderMutation } from '../slices/orderApiSlice';
+import { useGetOrderDetailsQuery, usePayOrderMutation, useGetStripeClientIdQuery } from '../slices/orderApiSlice';
 import { useSelector } from 'react-redux';
 import { useEffect } from 'react';
 import { loadStripe } from '@stripe/stripe-js';
@@ -12,7 +12,7 @@ const OrderPage = () => {
 
   const { userInfo } = useSelector((state) => state.auth);
   const [payOrder, { isLoading: loadingPay }] = usePayOrderMutation();
-  // const { data: stripe, isLoading: loadingStripe, error: errorStripe } = useGetStripeClientIdQuery();
+  const { data: stripeId, isLoading: loadingStripe, error: errorStripe } = useGetStripeClientIdQuery();
 
   // useEffect(() => {
   //   if (!errorStripe && !loadingStripe && stripe.clientId) {
@@ -23,7 +23,7 @@ const OrderPage = () => {
   // }, [order, stripe]);
 
   const makePayment = async () => {
-    const stripe = await loadStripe('pk_test_51Od8nZEh4r18sSvBFR8RkZIc8kP3jyEgfCOM7n611vTKnLVNvj3GLwl53DSdPfSBUG2MThLZ3Mw9RVA5msdy03qk00E6vIfmna');
+    const stripe = await loadStripe(stripeId);
     const res = await payOrder({ orderId, details: order.orderItems });
 
     const result = stripe.redirectToCheckout({

@@ -1,4 +1,4 @@
-import { ORDERS_URL } from '../constants';
+import { ORDERS_URL, STRIPE_URL } from '../constants';
 import { apiSlice } from './apiSlice';
 
 export const ordersApiSlice = apiSlice.injectEndpoints({
@@ -23,14 +23,21 @@ export const ordersApiSlice = apiSlice.injectEndpoints({
         body: details,
       }),
     }),
-    // getStripeClientId: builder.query({
-    //   query: () => ({
-    //     url: STRIPE_URL,
-    //   }),
-    //   keepUnusedDataFor: 5,
-    // }),
-    //getpaypalclientıd'li fonksiyon oluşturduk ve paypalurl'e istek atıp id'yi aldık.
+    getMyOrders: builder.query({
+      query: () => ({
+        //protect ile zaten kullanıcının bilgilerini ilettiğimiz için buradan id göndermemize gerek yok.
+        url: `${ORDERS_URL}/mine`,
+      }),
+      keepUnusedDataFor: 5,
+    }),
+    getStripeClientId: builder.query({
+      query: () => ({
+        url: STRIPE_URL,
+      }),
+      keepUnusedDataFor: 5,
+    }),
+    //getstripelclientıd'li fonksiyon oluşturduk ve stripeurl'e istek atıp id'yi aldık.
   }),
 });
 
-export const { useCreateOrderMutation, useGetOrderDetailsQuery, usePayOrderMutation } = ordersApiSlice;
+export const { useCreateOrderMutation, useGetOrderDetailsQuery, usePayOrderMutation, useGetMyOrdersQuery, useGetStripeClientIdQuery } = ordersApiSlice;

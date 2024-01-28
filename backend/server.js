@@ -28,7 +28,7 @@ app.use('/api/products', productRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/orders', orderRoutes);
 
-// app.get('/api/config/stripe', (req, res) => res.send({ clientId: process.env.STRIPE_CLIENT_ID })); //Front(client) side'da kullanıcının ulaşmaması için tutmak istemezsin.
+app.get('/api/config/stripe', (req, res) => res.json(process.env.STRIPE_PUBLISHABLE_KEY)); //Front(client) side'da kullanıcının ulaşmaması için tutmak istemezsin.
 
 app.use(notFound);
 
