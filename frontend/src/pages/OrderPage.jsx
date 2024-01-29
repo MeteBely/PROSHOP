@@ -1,10 +1,11 @@
 import { Link, useParams } from 'react-router-dom';
 import Message from '../components/Message.jsx';
 import Loader from '../components/Loader.jsx';
-import { useGetOrderDetailsQuery, usePayOrderMutation, useGetStripeClientIdQuery } from '../slices/orderApiSlice';
+import { useGetOrderDetailsQuery, usePayOrderMutation, useGetStripeClientIdQuery, useDeliverOrderMutation } from '../slices/orderApiSlice';
 import { useSelector } from 'react-redux';
 import { useEffect } from 'react';
 import { loadStripe } from '@stripe/stripe-js';
+import { toast } from 'react-toastify';
 
 const OrderPage = () => {
   const { id: orderId } = useParams();
@@ -12,6 +13,7 @@ const OrderPage = () => {
 
   const { userInfo } = useSelector((state) => state.auth);
   const [payOrder, { isLoading: loadingPay }] = usePayOrderMutation();
+  const [deliverOrder, { isLoading: loadingDeliver }] = useDeliverOrderMutation();
   const { data: stripeId, isLoading: loadingStripe, error: errorStripe } = useGetStripeClientIdQuery();
 
   // useEffect(() => {
@@ -31,6 +33,16 @@ const OrderPage = () => {
     });
     if (result.error) {
       console.log(result.error);
+    }
+  };
+
+  const deliverOrderHandler = async () => {
+    try {
+      await deliverOrder(orderId);
+      refetch(); //anlık olarak sonuç almamızı sağlar.
+      toast.success('Order delivered!');
+    } catch (error) {
+      toast.error(error?.message);
     }
   };
 
@@ -101,6 +113,9 @@ const OrderPage = () => {
             <button onClick={makePayment}>TEST ÖDEME YAP</button>
           </div>
         </div>
+        {loadingDeliver && <Loader />}
+
+        {userInfo && userInfo.isAdmin && order.isPaid && !order.isDelivered && <button onClick={deliverOrderHandler}>Mark As Delivered</button>}
       </div>
     </>
   );

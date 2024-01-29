@@ -31,13 +31,25 @@ export const ordersApiSlice = apiSlice.injectEndpoints({
       keepUnusedDataFor: 5,
     }),
     getStripeClientId: builder.query({
+      //getstripelclientıd'li fonksiyon oluşturduk ve stripeurl'e istek atıp id'yi aldık.
       query: () => ({
         url: STRIPE_URL,
       }),
       keepUnusedDataFor: 5,
     }),
-    //getstripelclientıd'li fonksiyon oluşturduk ve stripeurl'e istek atıp id'yi aldık.
+    getOrders: builder.query({
+      query: () => ({
+        url: ORDERS_URL,
+      }),
+      keepUnusedDataFor: 5,
+    }),
+    deliverOrder: builder.mutation({
+      query: (orderId) => ({
+        url: `${ORDERS_URL}/${orderId}/deliver`,
+        method: 'PUT',
+      }),
+    }),
   }),
 });
 
-export const { useCreateOrderMutation, useGetOrderDetailsQuery, usePayOrderMutation, useGetMyOrdersQuery, useGetStripeClientIdQuery } = ordersApiSlice;
+export const { useCreateOrderMutation, useGetOrderDetailsQuery, usePayOrderMutation, useGetMyOrdersQuery, useGetStripeClientIdQuery, useGetOrdersQuery, useDeliverOrderMutation } = ordersApiSlice;

@@ -99,6 +99,7 @@ const ProfilePage = () => {
                   <th scope="col" className="px-6 py-3 text-center">
                     DELIVERED
                   </th>
+                  <th scope="col" className="px-6 py-3 text-center"></th>
                 </tr>
               </thead>
               <tbody>
