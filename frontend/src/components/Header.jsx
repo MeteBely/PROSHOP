@@ -12,7 +12,8 @@ const Header = () => {
   const navigate = useNavigate();
   const { cartItems } = useSelector((state) => state.cart);
   const { userInfo } = useSelector((state) => state.auth);
-  const [openMenu, setOpenMenu] = useState(false);
+  const [openUserMenu, setOpenUserMenu] = useState(false);
+  const [openAdminMenu, setOpenAdminMenu] = useState(false);
   const [logoutApiCall] = useLogoutMutation();
   const logoutHandler = async () => {
     try {
@@ -51,10 +52,10 @@ const Header = () => {
               {userInfo ? (
                 <>
                   <div className="relative">
-                    <button onClick={() => setOpenMenu(!openMenu)} className="w-[100px] h-8 rounded-full">
+                    <button onClick={() => setOpenUserMenu(!openUserMenu)} className="w-[100px] h-8 rounded-full">
                       {userInfo.name}
                     </button>
-                    {openMenu && (
+                    {openUserMenu && (
                       <div className="absolute right-0 mt-3 w-[200px] bg-white shadow-lg shadow-gray-300 flex flex-col items-start">
                         <Link to="/profile">Profile</Link>
                         <button onClick={() => logoutHandler()}>Logout</button>
@@ -64,6 +65,22 @@ const Header = () => {
                 </>
               ) : (
                 ''
+              )}
+            </div>
+            <div>
+              {userInfo && userInfo.isAdmin && (
+                <div className="relative">
+                  <button onClick={() => setOpenAdminMenu(!openAdminMenu)} className="w-[100px] h-8 rounded-full">
+                    Admin
+                  </button>
+                  {openAdminMenu && (
+                    <div className="absolute right-0 mt-3 w-[200px] bg-white shadow-lg shadow-gray-300 flex flex-col items-start">
+                      <Link to="/admin/productlist">Products</Link>
+                      <Link to="/admin/orderlist">Orders</Link>
+                      <Link to="/admin/userlist">Users</Link>
+                    </div>
+                  )}
+                </div>
               )}
             </div>
           </div>
