@@ -1,11 +1,13 @@
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import Rating from '../components/Rating';
-import { useGetProductDetailsQuery } from '../slices/productsApiSlice';
+import { useGetProductDetailsQuery, useCreateReviewMutation } from '../slices/productsApiSlice';
 import Loader from '../components/Loader';
 import Message from '../components/Message';
 import { useState } from 'react';
 import { addToCart } from '../slices/cartSlice';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import { toast } from 'react-toastify';
+import Meta from '../components/Meta';
 
 const ProductPage = () => {
   const dispatch = useDispatch();
@@ -15,12 +17,33 @@ const ProductPage = () => {
   const { id: productId } = useParams();
 
   const [qty, setQty] = useState(1);
+  const [rating, setRating] = useState(0);
+  const [comment, setComment] = useState('');
+  const { userInfo } = useSelector((state) => state.auth);
 
-  const { data: product, error, isLoading } = useGetProductDetailsQuery(productId);
+  const { data: product, error, isLoading, refetch } = useGetProductDetailsQuery(productId);
+  const [createReview, { isLoading: loadingProductReview }] = useCreateReviewMutation();
 
   const addToCartHandler = () => {
     dispatch(addToCart({ ...product, qty }));
     navigate('/cart');
+  };
+
+  const submitHandler = async (e) => {
+    e.preventDefault();
+    try {
+      await createReview({
+        productId,
+        rating,
+        comment,
+      }).unwrap();
+      refetch();
+      toast.success('Review added successfully');
+      setRating(0);
+      setComment('');
+    } catch (err) {
+      toast.error(err?.data?.message); //MİS
+    }
   };
   return (
     <>
@@ -32,6 +55,7 @@ const ProductPage = () => {
         <Message text={error?.data?.message || error?.error}></Message>
       ) : (
         <>
+          <Meta title={product.name} />
           <div className="w-5/6 mx-auto text-[#8C9393] font-medium mt-8">
             <div className="flex flex-row gap-4 justify-center items-center">
               <div>
@@ -74,6 +98,48 @@ const ProductPage = () => {
                   </button>
                 </div>
               </div>
+            </div>
+            <div>
+              <h2>Reviews</h2>
+              {product.reviews.length === 0 && <Message text="No Reviews" />}
+              {product.reviews.map((review) => {
+                return (
+                  <div key={review._id}>
+                    <strong>{review.name}</strong>
+                    <Rating value={review.rating} />
+                    <p>{review.createdAt.substring(0, 10)}</p>
+                    <p>{review.comment}</p>
+                  </div>
+                );
+              })}
+              <h2>Write Review</h2>
+              {loadingProductReview && <Loader />}
+              {userInfo ? (
+                <form onSubmit={(e) => submitHandler(e)}>
+                  <div className="flex flex-col my-2">
+                    <label htmlFor="rating">Rating</label>
+                    <select id="rating" name="rating" value={rating} onChange={(e) => setRating(Number(e.target.value))}>
+                      <option>Select</option>
+                      <option value="1">1</option>
+                      <option value="2">2</option>
+                      <option value="3">3</option>
+                      <option value="4">4</option>
+                      <option value="5">5</option>
+                    </select>
+                  </div>
+                  <div className="flex flex-col my-2">
+                    <label htmlFor="comment">Comment</label>
+                    <textarea value={comment} onChange={(e) => setComment(e.target.value)} name="" id="" cols="30" rows="10"></textarea>
+                  </div>
+                  <div className="flex flex-col my-2">
+                    <button disabled={loadingProductReview} type="submit">
+                      Submit
+                    </button>
+                  </div>
+                </form>
+              ) : (
+                <Message text={`Please login to write a review`} />
+              )}
             </div>
           </div>
         </>
