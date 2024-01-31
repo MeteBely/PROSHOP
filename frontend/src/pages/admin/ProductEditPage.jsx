@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { useUpdateProductMutation, useGetProductDetailsQuery } from '../../slices/productsApiSlice';
+import { useUpdateProductMutation, useGetProductDetailsQuery, useUploadProductImageMutation } from '../../slices/productsApiSlice';
 import Loader from '../../components/Loader';
 import Message from '../../components/Message';
 import { toast } from 'react-toastify';
@@ -17,6 +17,7 @@ const ProductEditPage = () => {
   const [category, setCategory] = useState('');
   const { data: product, isLoading, error, refetch } = useGetProductDetailsQuery(productId);
   const [updateProduct, { isLoading: loadingUpdate }] = useUpdateProductMutation();
+  const [uploadProductImage, { isLoading: loadingUpload }] = useUploadProductImageMutation();
 
   useEffect(() => {
     if (product) {
@@ -51,6 +52,18 @@ const ProductEditPage = () => {
     }
   };
 
+  const uploadFileHandler = async (e) => {
+    const formData = new FormData();
+    formData.append('image', e.target.files[0]);
+    try {
+      const res = await uploadProductImage(formData).unwrap();
+      toast.success(res.message);
+      setImage(res.image);
+    } catch (err) {
+      toast.error(err?.message);
+    }
+  };
+
   return (
     <>
       <Link to="/admin/productlist">Go Back</Link>
@@ -70,7 +83,11 @@ const ProductEditPage = () => {
             <label htmlFor="price">Price</label>
             <input type="number" value={price} placeholder="Enter price" id="price" onChange={(e) => setPrice(e.target.value)} />
           </div>
-          {/* IMAGE INPUT PLACEHOLDER*/}
+          <div className="flex flex-col my-2">
+            <label htmlFor="image">Image</label>
+            <input type="text" value={image} placeholder="Enter image url" id="image" onChange={(e) => setImage(e.target.value)} />
+            <input type="file" label="Choose file" id="" onChange={uploadFileHandler} />
+          </div>
           <div className="flex flex-col my-2">
             <label htmlFor="brand">Brand</label>
             <input type="text" value={brand} placeholder="Enter brand" id="brand" onChange={(e) => setBrand(e.target.value)} />
