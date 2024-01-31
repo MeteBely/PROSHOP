@@ -1,4 +1,4 @@
-import { useGetProductsQuery, useCreateProductMutation } from '../../slices/productsApiSlice';
+import { useGetProductsQuery, useCreateProductMutation, useDeleteProductMutation } from '../../slices/productsApiSlice';
 import Loader from '../../components/Loader';
 import Message from '../../components/Message';
 import { FaEdit, FaTrash } from 'react-icons/fa';
@@ -6,12 +6,21 @@ import { Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
 
 const ProductListPage = () => {
-  const deleteHandler = (id) => {
-    console.log('delete', id);
-  };
-
   const { data: products, isLoading, error, refetch } = useGetProductsQuery();
   const [createProduct, { isLoading: loadingCreate }] = useCreateProductMutation();
+  const [deleteProduct, { isLoading: loadingDelete }] = useDeleteProductMutation();
+
+  const deleteHandler = async (id) => {
+    if (window.confirm('Are you sure you want to delete')) {
+      try {
+        const res = await deleteProduct(id);
+        refetch();
+        toast.success(res.data.message);
+      } catch (err) {
+        toast.error(err?.message);
+      }
+    }
+  };
 
   const createProductHandler = async () => {
     if (window.confirm('Are you sure you want to create new product?')) {
@@ -36,6 +45,7 @@ const ProductListPage = () => {
         </div>
       </div>
       {loadingCreate && <Loader />}
+      {loadingDelete && <Loader />}
       {isLoading ? (
         <Loader />
       ) : error ? (
