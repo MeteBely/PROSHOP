@@ -88,6 +88,7 @@ const ProductEditPage = () => {
             <input type="text" value={image} placeholder="Enter image url" id="image" onChange={(e) => setImage(e.target.value)} />
             <input type="file" label="Choose file" id="" onChange={uploadFileHandler} />
           </div>
+          {loadingUpload && <Loader />}
           <div className="flex flex-col my-2">
             <label htmlFor="brand">Brand</label>
             <input type="text" value={brand} placeholder="Enter brand" id="brand" onChange={(e) => setBrand(e.target.value)} />

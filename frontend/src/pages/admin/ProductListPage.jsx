@@ -2,11 +2,13 @@ import { useGetProductsQuery, useCreateProductMutation, useDeleteProductMutation
 import Loader from '../../components/Loader';
 import Message from '../../components/Message';
 import { FaEdit, FaTrash } from 'react-icons/fa';
-import { Link } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import Paginate from '../../components/Paginate';
 
 const ProductListPage = () => {
-  const { data: products, isLoading, error, refetch } = useGetProductsQuery();
+  const { pageNumber } = useParams();
+  const { data, isLoading, error, refetch } = useGetProductsQuery({ pageNumber });
   const [createProduct, { isLoading: loadingCreate }] = useCreateProductMutation();
   const [deleteProduct, { isLoading: loadingDelete }] = useDeleteProductMutation();
 
@@ -74,7 +76,7 @@ const ProductListPage = () => {
               </tr>
             </thead>
             <tbody>
-              {products.map((product) => (
+              {data.products.map((product) => (
                 <tr key={product._id} className="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
                   <td className="px-6 py-4 text-center font-medium text-gray-900 whitespace-nowrap dark:text-white">{product._id}</td>
                   <td className="px-6 py-4 text-center font-medium text-gray-900 whitespace-nowrap dark:text-white">{product.name}</td>
@@ -95,6 +97,7 @@ const ProductListPage = () => {
               ))}
             </tbody>
           </table>
+          <Paginate pages={data.pages} page={data.page} isAdmin={true} />
         </>
       )}
     </>

@@ -5,6 +5,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { useState } from 'react';
 import { useLogoutMutation } from '../slices/usersApiSlice.jsx';
+import SearchBox from './SearchBox.jsx';
 import { logout } from '../slices/authSlice.jsx';
 
 const Header = () => {
@@ -35,6 +36,9 @@ const Header = () => {
             </Link>
           </div>
           <div className="flex flex-row gap-8 justify-center items-center">
+            <div>
+              <SearchBox />
+            </div>
             <div className="relative">
               <Link to="/cart" className="flex flex-row items-center gap-[4px]">
                 <FaShoppingCart />
